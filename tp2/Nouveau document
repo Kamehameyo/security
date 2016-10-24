@@ -1,0 +1,18 @@
+tp2
+
+recuperer kali linux sur
+wget http://imss-www.upmf-grenoble.fr/~bulfonec/Kali.7z
+
+-hackme
+-sujet tp decouverte
+
+et l'installer sur vmware
+
+une fois installer,
+
+tar -zxvf Hackme.tyz
+7zr x kali.7z
+
+
+passer en azerty 
+setxkbmap fr

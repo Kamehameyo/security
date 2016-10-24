@@ -1,0 +1,202 @@
+\documentclass{article}
+\usepackage[french]{babel}
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+
+\title{OPENSSL}
+
+\begin{document}
+\maketitle
+\section{Génération de nombres aléatoires}
+
+Pour générer des valeurs aléatoires on dispose de la commande \texttt{rand} dans \texttt{openssl}: 
+\begin{lstlisting}[language=bash]
+$ openssl rand -out dest num
+
+\end{lstlisting}
+
+On a les options suivantes:
+\begin{itemize}
+\item \texttt{num} est le nombre d’octets aléatoires produits.
+\item \texttt{-out} dest est le nom du fichier de destination.
+\end{itemize}
+
+On dispose aussi d’options pour formater la sortie en hexadécimal ou en base64.
+
+\subsection*{Questions}
+\begin{itemize}
+
+\item Utiliser \texttt{openssl} pour produire une clef et un vecteur d’initialisation de longueur respective
+128 bits sauvegarder dans \texttt{key.rnd} et \texttt{iv.rnd}.
+\item En utilisant, la documentation de \texttt{openssl} expliquer le processus qui a été mis en œuvre pour générer ces nombres. Est-ce satisfaisant ?
+
+
+
+\item Sous Linux, on dispose aussi \texttt{/dev/random} et \texttt{/dev/random}
+
+\begin{lstlisting}[language=bash]
+$ dd if=/dev/urandom of=data.rnd bs=16 count=1
+\end{lstlisting}
+
+Quelle est la différence entre \texttt{/dev/random} et \texttt{/dev/urandom} ?
+
+
+\end{itemize}
+
+
+\section{Chiffrement symétrique}
+
+\subsection{Avec clef et IV}
+
+On peut chiffrer ou déchiffrer des fichiers avec \texttt{openssl} en utilisant les commandes \texttt{-enc -c} et
+\texttt{enc -d}:
+\begin{lstlisting}[language=bash]
+$ openssl enc -e -ciphername -in clear -out cipher -K mykey -iv my iv
+\end{lstlisting}
+avec les options suivantes:
+\begin{itemize}
+
+\item \texttt{-ciphername},
+\item \texttt{-in} indique le nom du fichier à chiffrer,
+\item \texttt{-out} indique le nom du fichier chiffré,
+\item \texttt{-K} la clef en héxadecimal,
+\item \texttt{-iv} le vecteur d’initialisation en héxadecimal.
+\end{itemize}
+
+
+\subsection*{Questions}
+\begin{itemize}
+
+\item Chiffrer le fichier \texttt{test1} avec l’AES en mode CTR (128 bits) avec la clef et le vecteur
+d’initialisation des questions précédentes.
+\item Même chose avec l’AES en mode CBC (128 bits). Comparer la taille du fichier \texttt{test1} avec
+les deux fichiers chiffrés obtenus (\texttt{ls} ou \texttt{wc}). Est ce que cela correspond à vos attentes ?
+\item Comparer la performance (vitesse) des différents modes de chiffrement que nous avons vu en
+cours pour l’AES (128 bits) en utilisant l’option:
+\begin{lstlisting}[language=bash]
+$ openssl speed ciphername
+\end{lstlisting}
+
+Est ce que cela correspond à vos attentes en terme de performance ?
+
+
+\item Le fichier \texttt{test2.enc} a été chiffré. En analysant le fichier avec \texttt{hexdump} quel mode opératoire
+a-t-il été utilisé ?
+\item Les fichiers \texttt{test3.enc} et \texttt{test4.enc} ont été chiffrée avec l’AES et la même clef. Quelle erreur
+a été commise lors du chiffrement ?
+\end{itemize}
+
+\subsection{Avec mot de passe}
+Il est relativement difficile pour un être humain de retenir la clef et le vecteur d’initialisation
+utilisée pour chiffrer un fichier. \texttt{openssl} utilise un système de mot de passe ce qui est compatible
+avec la mémoire de l’utilisateur:
+\begin{lstlisting}[language=bash]
+$ openssl enc -e -ciphername -in clear -out cipher
+\end{lstlisting}
+
+\texttt{openssl} va demander choisir un mot de passe et de le confirmer.
+
+
+\subsection*{Questions}
+\begin{itemize}
+
+\item Chiffrer le fichier \texttt{test1} avec l’AES en mode CTR (128 bits) en utilisant un mot de passe.
+Vous obtiendrez un fichier \texttt{res1.enc}
+\item Chiffrer une seconde choix le fichier \texttt{test1} avec l’AES en mode CTR (128 bits) en utilisant
+le même mot de passe que dans la question précédente. Vous obtiendrez un fichier \texttt{res2.enc}
+
+
+\item Comparez \texttt{res1.enc} et \texttt{res2.enc}. Le résultat vous surprend-t-il ?
+\item Chiffrer une troisième fois \texttt{test1} toujours avec le même mode opératoire de l’AES et le
+même mot de passe mais vous allez utiliser l’option \texttt{-p}. Expliquer comment la clef et le vecteur
+d’initialisation sont générées.
+\item Utiliser \texttt{hexdump} pour comprendre la structure d’un fichier chiffré avec un mot de passe.
+Quelle option doit-on donnée à \texttt{openssl} pour obtenir après chiffrement un fichier qui contient
+uniquement le texte chiffré ?
+\end{itemize}
+
+
+
+
+\section{Hachage}
+
+On peut calculer l’empreinte d’un fichier avec openssl en utilisant les commandes \texttt{dgst}:
+\begin{lstlisting}[language=bash]
+$ openssl dgst -hashname filename
+\end{lstlisting}
+
+avec les options suivantes:
+\begin{itemize}
+\item  \texttt{-hashname} le nom de la fonction de hachage
+\item  \texttt{filename} le nom du fichier
+\end{itemize}
+
+
+
+\subsection*{Questions}
+\begin{itemize}
+\item Calculer l’empreinte du fichier \texttt{test1} avec SHA-256 et SHA-512.
+
+\item Calculer les empreintes de  \texttt{l1.ps} et  \texttt{l2.ps} avec MD5. Visualiser ces deux documents. Qu'en pensez vous ?
+
+\item Pour calculer l’empreinte d’une chaîne de caractères, on peut utiliser la commande:
+\begin{lstlisting}[language=bash]
+$ echo "mystring" | openssl dgst -hashname
+\end{lstlisting}
+
+L’empreinte de "toto" est:
+\texttt{Ox0b9c2625dc21ef05f6ad4ddf47c5f203837aa32c}
+Êtes vous d’accord ? (A quoi faut-il faire attention ?)
+\item \texttt{hashcash} est un système de preuve de travail utilise dans Bitcoint. Pour générer de
+nouveau bitcoin, il faut réussir à trouver des pré-images pour des empreintes SHA-256 de la forme:
+\begin{center}
+\texttt{0x000000XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+\end{center}
+\end{itemize}
+
+\section{Chiffrement asymétrique}
+Nous allons regarder comment utiliser RSA avec \texttt{openssl} La génération des clefs est faites de la
+façon suivante:
+\begin{lstlisting}[language=bash]
+$ openssl genrsa -out filename size
+\end{lstlisting}
+avec comme paramètres:
+\begin{itemize}
+\item \texttt{filename} le fichier dans lequel les clefs vont être écrites.
+\item \texttt{size} la taille en bits de la clef.
+\end{itemize}
+Pour inspecter et visualiser les clefs, on dispose de la commande suivante:
+\begin{lstlisting}[language=bash]
+$ openssl rsa -in filename -text -noout
+\end{lstlisting}
+
+Le fichier \texttt{filename} contient la clef publique et de la clef privée: il faut y faire très attention et
+ne jamais divulguer la clef privée! Par contre on peut partager avec tout le monde la clef publique.
+Pour extraire la clef publique, on dispose de la commande suivante:
+\begin{lstlisting}[language=bash]
+$ openssl rsa -in filename -pubout -out filename.pub
+\end{lstlisting}
+
+Le fichier \texttt{filename.pub} peut être partagé avec n’importe qui !
+Pour chiffrer un fichier, on dispose de la commande suivante
+
+\begin{lstlisting}[language=bash]
+$ openssl rsautl -encrypt -pubin -in clear -inkey filename.pub -out cipher
+\end{lstlisting}
+
+avec comme paramètres:
+\begin{itemize}
+\item \texttt{clear} le fichier contenant le texte clair,
+\item \texttt{cipher} le fichier contenant le texte chiffré.
+\end{itemize}
+
+\subsection*{Questions}
+\begin{itemize}
+\item Tester le chiffrement avec RSA 2048 sur un fichier de votre choix en échangeant par mail avec
+un autre groupe vos clefs publiques.
+\item Même question pour le fichier contenant 3KB de données aléatoires. Que pensez vous du chiffrement avec RSA ? Comment faire pour être plus efficace ?
+\end{itemize}
+
+\end{document}

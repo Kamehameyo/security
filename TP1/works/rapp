@@ -1,0 +1,36 @@
+création de clef
+
+openssl rand -out key.rnd -hex 128
+openssl rand -out iv.rnd -hex 128
+
+encryptage
+-aes-128-ctr
+
+openssl enc -e -aes-128-ctr -in test1 -out test1ctr -K ad805cc5c9840605727d1a6b35236f7b -iv 88c62fa4da076830b18cb8ad2f9d68f1
+
+-aes-128-cbc
+openssl enc -e -aes-128-cbc -in test1 -out test1cbc -K ad805cc5c9840605727d1a6b35236f7b -iv 88c62fa4da076830b18cb8ad2f9d68f1
+
+openssl enc -d -aes-128-ctr -in rapc -out rapdec -K ad805cc5c9840605727d1a6b35236f7b -iv 88c62fa4da076830b18cb8ad2f9d68f1
+
+
+RSA
+créer une clef
+openssl genrsa -out clef 2048
+
+affiche la clef
+openssl rsa -in clef -text -noout
+
+créer une clef publique - a partager -
+openssl rsa -in clef -pubout -out clef.pub
+
+chiffre un message avec clef public
+openssl rsautl -encrypt -pubin -in hello -inkey clef.pub -out cipher
+
+dechiffre message clef prive
+openssl rsautl -decrypt -in cipher -inkey clef -out decrypt
+
+
+
+
+
